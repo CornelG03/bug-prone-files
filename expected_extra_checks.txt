@@ -1,0 +1,63 @@
+
+=== 1. One prediction calculated by hand =====================================
+                   raw value  position  standardised  weight  contribution
+loc                      727     0.988         1.683   0.722         1.215
+commits                  146     0.970         1.622   0.395         0.641
+authors                   48     0.994         1.706   0.113         0.193
+churn                   3027     0.982         1.662  -0.095        -0.158
+bugfixes                  24     1.000         1.753   0.255         0.446
+age_days                3837     0.293        -0.735  -0.333         0.245
+days_since_change          4     0.118        -1.340  -0.241         0.324
+recent_commits            18     0.982         1.720   0.029         0.050
+recent_bugfixes            3     1.000         2.292   0.106         0.242
+
+sum of contributions 3.197 + intercept -0.323 = 2.874
+risk = 1 / (1 + e^-2.874) = 0.947
+the model itself says:           0.947
+
+=== 2. The measures calculated by hand for scrapy/scrapy ======================
+files 169, really buggy 51, flagged by the model 70
+TP 37   FP 33   FN 14   TN 85
+precision = TP / (TP + FP) = 37 / 70 = 0.529
+recall    = TP / (TP + FN) = 37 / 51 = 0.725
+F1        = 2 * P * R / (P + R) = 0.612
+accuracy  = (TP + TN) / all = 0.722   (saying 'clean' for every file: 0.698)
+top 20%   = the 34 riskiest files contain 24 of the 51 buggy files = 0.471
+AUC       = 0.788
+
+=== 3. What happens when the 0.5 threshold is moved ==========================
+threshold 0.3: precision 0.462  recall 0.897  F1 0.580  files flagged 61%
+threshold 0.5: precision 0.558  recall 0.758  F1 0.610  files flagged 42%
+threshold 0.7: precision 0.676  recall 0.534  F1 0.562  files flagged 24%
+
+=== 4. Leaving features out (logistic regression, average AUC) ===============
+all 9 features         0.837
+without loc            0.828
+only loc               0.827
+only commits           0.777
+only loc + bugfixes    0.833
+
+=== 5. A random 80/20 split instead of leaving a project out =================
+Logistic regression  random split AUC 0.830   leave-one-project-out AUC 0.837
+Decision tree        random split AUC 0.790   leave-one-project-out AUC 0.786
+Random forest        random split AUC 0.821   leave-one-project-out AUC 0.821
+
+=== 6. Overfitting: AUC on the training data against AUC on unseen projects ==
+Logistic regression  on data it was trained on 0.841   on unseen projects 0.837
+Decision tree        on data it was trained on 0.852   on unseen projects 0.786
+Random forest        on data it was trained on 0.981   on unseen projects 0.821
+
+=== 7. Model against the rule 'largest files first', project by project ======
+celery/celery                AUC model 0.839 rule 0.823   top20 model 0.408 rule 0.394
+networkx/networkx            AUC model 0.753 rule 0.773   top20 model 0.571 rule 0.571
+pandas-dev/pandas            AUC model 0.873 rule 0.866   top20 model 0.343 rule 0.331
+pydantic/pydantic            AUC model 0.901 rule 0.853   top20 model 0.654 rule 0.538
+pydata/xarray                AUC model 0.803 rule 0.782   top20 model 0.396 rule 0.358
+pytest-dev/pytest            AUC model 0.839 rule 0.857   top20 model 0.297 rule 0.378
+python-poetry/poetry         AUC model 0.848 rule 0.857   top20 model 0.509 rule 0.509
+python/mypy                  AUC model 0.876 rule 0.864   top20 model 0.449 rule 0.439
+scikit-learn/scikit-learn    AUC model 0.859 rule 0.827   top20 model 0.473 rule 0.484
+scrapy/scrapy                AUC model 0.788 rule 0.799   top20 model 0.471 rule 0.471
+sphinx-doc/sphinx            AUC model 0.836 rule 0.809   top20 model 0.650 rule 0.600
+sqlalchemy/sqlalchemy        AUC model 0.824 rule 0.815   top20 model 0.558 rule 0.558
+The model has the higher AUC in 8 of 12 projects.

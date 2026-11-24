@@ -1,0 +1,76 @@
+DATASET
+                           files  buggy  buggy_share
+repo                                                
+celery/celery                180     71        0.394
+networkx/networkx            289     35        0.121
+pandas-dev/pandas            301    172        0.571
+pydantic/pydantic            107     26        0.243
+pydata/xarray                111     53        0.477
+pytest-dev/pytest             81     37        0.457
+python-poetry/poetry         171     53        0.310
+python/mypy                  297    107        0.360
+scikit-learn/scikit-learn    331     93        0.281
+scrapy/scrapy                169     51        0.302
+sphinx-doc/sphinx            229     20        0.087
+sqlalchemy/sqlalchemy        226     43        0.190
+TOTAL                       2492    761        0.305
+
+AVERAGE OVER THE PROJECTS - raw numbers (no preprocessing)
+                          precision  recall     f1    auc  top20
+method                                                          
+Logistic regression           0.598   0.594  0.541  0.805  0.476
+Decision tree                 0.539   0.630  0.539  0.753  0.408
+Random forest                 0.580   0.645  0.544  0.808  0.457
+Rule: largest files               -       -      -  0.827  0.469
+Rule: most changed files          -       -      -  0.777  0.447
+
+AVERAGE OVER THE PROJECTS - with preprocessing (used from here on)
+                          precision  recall     f1    auc  top20
+method                                                          
+Logistic regression           0.558   0.758  0.610  0.837  0.482
+Decision tree                 0.540   0.675  0.553  0.786  0.421
+Random forest                 0.580   0.690  0.587  0.821  0.465
+Rule: largest files               -       -      -  0.827  0.469
+Rule: most changed files          -       -      -  0.777  0.447
+
+LOGISTIC REGRESSION, project by project
+                           precision  recall     f1    auc  top20
+project                                                          
+celery/celery                  0.671   0.690  0.681  0.839  0.408
+networkx/networkx              0.210   0.743  0.327  0.753  0.571
+pandas-dev/pandas              0.912   0.663  0.768  0.873  0.343
+pydantic/pydantic              0.561   0.885  0.687  0.901  0.654
+pydata/xarray                  0.756   0.642  0.694  0.803  0.396
+pytest-dev/pytest              0.730   0.730  0.730  0.839  0.297
+python-poetry/poetry           0.551   0.717  0.623  0.848  0.509
+python/mypy                    0.672   0.785  0.724  0.876  0.449
+scikit-learn/scikit-learn      0.550   0.828  0.661  0.859  0.473
+scrapy/scrapy                  0.529   0.725  0.612  0.788  0.471
+sphinx-doc/sphinx              0.173   0.850  0.288  0.836  0.650
+sqlalchemy/sqlalchemy          0.387   0.837  0.529  0.824  0.558
+
+EXAMPLE: the 10 riskiest files of scrapy/scrapy (buggy = what really happened)
+                               file  risk  loc  commits  recent_bugfixes  buggy
+    scrapy/extensions/feedexport.py  0.95  727      146                3      1
+          scrapy/pipelines/files.py  0.93  708      105                0      1
+scrapy/settings/default_settings.py  0.92  548      213                1      0
+          scrapy/pipelines/media.py  0.91  312       59                1      0
+     scrapy/extensions/httpcache.py  0.90  417       55                1      0
+                  scrapy/crawler.py  0.90  779      195                2      1
+             scrapy/core/scraper.py  0.89  531      153                2      1
+         scrapy/pipelines/images.py  0.89  250       79                0      1
+        scrapy/settings/__init__.py  0.88  679       82                0      1
+                scrapy/utils/log.py  0.88  267       65                1      1
+
+WEIGHT OF EACH FEATURE IN THE FINAL MODEL
+loc                  0.72
+commits              0.40
+bugfixes             0.25
+authors              0.11
+recent_bugfixes      0.11
+recent_commits       0.03
+churn               -0.10
+days_since_change   -0.24
+age_days            -0.33
+
+Saved model.joblib and the tables in results/
